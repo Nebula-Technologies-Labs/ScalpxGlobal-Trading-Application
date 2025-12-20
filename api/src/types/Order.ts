@@ -1,0 +1,34 @@
+import { Schema } from "mongoose";
+
+type orderType = "BUY" | "SELL";
+type transactionType = "MARKET" | "LIMIT" | "ST-L";
+type tradeType = "MIS" | "CNC";
+type orderStatus = "PENDING" | "COMPLETED" | "CANCELLED" | "REJECTED";
+
+export interface OrderDTO {
+  userId: Schema.Types.ObjectId;
+  token: string;
+  quantity: Number;
+  symbol: string;
+  name: string;
+  exchangeSegment: string;
+  instrumentType: string;
+  price: number;
+  orderType: orderType;
+  tradeType: tradeType;
+  transactionType: transactionType;
+  orderStatus: orderStatus;
+  triggerPrice: number;
+  limit: number;
+}
+
+export interface OrderEngineArguements {
+  tradeType: tradeType;
+  orderType: orderType;
+  transactionType: transactionType;
+  token: string;
+  lotQuantity: number;
+  limit?: number;
+  triggerPrice?: number;
+  userId: string;
+}

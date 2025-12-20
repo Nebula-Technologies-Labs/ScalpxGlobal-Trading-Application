@@ -2,8 +2,9 @@ import AppText from "@/components/Common/AppText";
 import AppTickChange from "@/components/Common/AppTickChange";
 import AppTickChangePercent from "@/components/Common/AppTickChangePercent";
 import AppTickPrice from "@/components/Common/AppTickPrice";
-import useSocketTick from "@/hooks/useSocketTicks";
+import useCalculation from "@/hooks/useCalculation";
 import { useAppSelector } from "@/redux/hook";
+import { FormatNumber } from "@/utils/Formatter";
 import { Feather, MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useState } from "react";
@@ -11,8 +12,14 @@ import { Switch, TextInput, TouchableOpacity, View } from "react-native";
 
 const SellScreen = () => {
   const { instrument } = useAppSelector((state) => state.instrument);
+  const { profile } = useAppSelector((state) => state.auth);
   const [stoploss, setStoploss] = useState<boolean>(false);
-  const { tick } = useSocketTick();
+  const [lotQuantity, setLotQuantity] = useState<number>(1);
+  const { margin, brokerage, totalAmount } = useCalculation({
+    instrument,
+    lotQuantity,
+    profile,
+  });
 
   return (
     <View className="flex-1 justify-between flex-col gap-2">
@@ -34,18 +41,16 @@ const SellScreen = () => {
           <AppText className="text-textSecondary" textSize={12}>
             {instrument?.exchangeSegment}
           </AppText>
-          <AppTickPrice textSize={12} item={instrument} tick={tick} />
+          <AppTickPrice textSize={12} item={instrument} />
           <AppTickChange
             className="text-textMuted"
             textSize={12}
             item={instrument}
-            tick={tick}
           />
           <AppTickChangePercent
             className="text-textMuted"
             textSize={12}
             item={instrument}
-            tick={tick}
           />
         </View>
 
@@ -73,7 +78,7 @@ const SellScreen = () => {
                 Lot
               </AppText>
               <AppText className="text-textMuted" textSize={12}>
-                100 Qty.
+                {lotQuantity * (instrument === null ? 0 : instrument?.lotSize)}
               </AppText>
             </View>
             <View className="px-2 py-2 border border-border flex-row items-center">
@@ -83,6 +88,11 @@ const SellScreen = () => {
                 placeholderTextColor={"#A3A3B3"}
                 style={{ fontFamily: "interSemiBold" }}
                 keyboardType="number-pad"
+                onChangeText={(value) =>
+                  value.length === 0
+                    ? setLotQuantity(0)
+                    : setLotQuantity(Number(value))
+                }
               />
             </View>
           </View>
@@ -174,19 +184,28 @@ const SellScreen = () => {
           <View className="flex-row items-center gap-6">
             <View className="flex-row gap-2">
               <AppText className="text-textSecondary">Margin</AppText>
-              <AppText className="text-danger">1,29,000</AppText>
+              <AppText className="text-danger">{FormatNumber(margin)}</AppText>
               <AppText className="text-textSecondary">+</AppText>
-              <AppText className="text-danger">43.59</AppText>
+              <AppText className="text-danger">
+                {FormatNumber(brokerage)}
+              </AppText>
             </View>
             <View className="flex-row gap-1">
               <AppText className="text-textSecondary">Avail.</AppText>
-              <AppText className="text-danger">83.90</AppText>
+              <AppText className="text-danger">
+                {FormatNumber(profile === null ? 0 : profile?.availableFunds)}
+              </AppText>
             </View>
           </View>
           <Feather name="refresh-cw" size={14} color={"#DF514D"} />
         </View>
         <View className="px-10 bg-background">
-          <TouchableOpacity className="bg-buttonDanger items-center py-6 rounded-full">
+          <TouchableOpacity
+            className="bg-buttonDanger items-center py-6 rounded-full disabled:bg-backgroundSecondary"
+            disabled={
+              totalAmount > (profile === null ? 0 : profile?.availableFunds)
+            }
+          >
             <AppText
               className="text-white"
               textSize={20}

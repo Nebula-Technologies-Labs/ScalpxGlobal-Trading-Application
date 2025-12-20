@@ -8,7 +8,7 @@ interface payload {
   exchangeType: segment;
 }
 
-const tickMap = new Map();
+export const tickMap = new Map();
 let tokenMap = new Map();
 
 const TickEngine = async () => {
@@ -31,7 +31,7 @@ const TickEngine = async () => {
 
     setInterval(() => {
       io.emit("tick", Object.fromEntries(tickMap));
-    }, 100);
+    }, 500);
 
     ws.on("error", (err) => console.error("WebSocket Error:", err));
     ws.on("close", () => console.log("⚠️ WebSocket closed — reconnecting..."));

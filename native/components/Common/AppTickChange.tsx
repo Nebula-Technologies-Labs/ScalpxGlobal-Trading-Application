@@ -3,20 +3,20 @@ import AppText from "./AppText";
 import { InstrumentResponse } from "@/types/InstrumentTypes";
 import { AppHeaderInstruments } from "@/data/AppHeaderData";
 import { FormatNumber } from "@/utils/Formatter";
+import useSocketTick from "@/hooks/useSocketTicks";
 
 interface AppTickChangeProps {
   textSize?: number;
   className?: string;
   item: InstrumentResponse | AppHeaderInstruments | null;
-  tick: any;
 }
 
 export default function AppTickChange({
   className,
   textSize,
-  tick,
   item,
 }: AppTickChangeProps) {
+  const { tick } = useSocketTick();
   const data = useMemo(
     () => (item === null ? {} : tick[item?.token]),
     [item, tick]

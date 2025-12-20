@@ -1,18 +1,54 @@
 import AppText from "@/components/Common/AppText";
-import { useAppSelector } from "@/redux/hook";
+import { useAppDispatch, useAppSelector } from "@/redux/hook";
 import { Feather, MaterialIcons } from "@expo/vector-icons";
-import { TextInput, View, Switch, TouchableOpacity } from "react-native";
+import {
+  TextInput,
+  View,
+  Switch,
+  TouchableOpacity,
+  Pressable,
+} from "react-native";
 import AppTickPrice from "@/components/Common/AppTickPrice";
 import AppTickChange from "@/components/Common/AppTickChange";
 import AppTickChangePercent from "@/components/Common/AppTickChangePercent";
 import { useState } from "react";
-import { router } from "expo-router";
-import useSocketTick from "@/hooks/useSocketTicks";
+import { router, useLocalSearchParams } from "expo-router";
+import useCalculation from "@/hooks/useCalculation";
+import { FormatNumber } from "@/utils/Formatter";
+import { tradeType, transactionType } from "@/types/OrderTypes";
+import { createOrder } from "@/redux/slices/OrderSlice";
 
 const BuyScreen = () => {
+  const dispatch = useAppDispatch();
+  const { tokenId } = useLocalSearchParams();
   const { instrument } = useAppSelector((state) => state.instrument);
+  const { profile } = useAppSelector((state) => state.auth);
   const [stoploss, setStoploss] = useState<boolean>(false);
-  const { tick } = useSocketTick();
+  const [limit, setLimit] = useState<number>(0);
+  const [triggerPrice, setTriggerPrice] = useState<number>(0);
+  const [lotQuantity, setLotQuantity] = useState<number>(1);
+  const [transactionType, setTransactionType] =
+    useState<transactionType>("MARKET");
+  const [tradeType, setTradeType] = useState<tradeType>("MIS");
+  const { margin, brokerage, totalAmount } = useCalculation({
+    instrument,
+    lotQuantity,
+    profile,
+  });
+
+  const handleBuyOrder = () => {
+    dispatch(
+      createOrder({
+        limit,
+        lotQuantity,
+        orderType: "BUY",
+        token: String(tokenId),
+        tradeType,
+        transactionType: stoploss ? "ST-L" : transactionType,
+        triggerPrice,
+      })
+    );
+  };
 
   return (
     <View className="flex-1 justify-between flex-col gap-2">
@@ -34,18 +70,16 @@ const BuyScreen = () => {
           <AppText className="text-textSecondary" textSize={12}>
             {instrument?.exchangeSegment}
           </AppText>
-          <AppTickPrice textSize={12} item={instrument} tick={tick} />
+          <AppTickPrice textSize={12} item={instrument} />
           <AppTickChange
             className="text-textMuted"
             textSize={12}
             item={instrument}
-            tick={tick}
           />
           <AppTickChangePercent
             className="text-textMuted"
             textSize={12}
             item={instrument}
-            tick={tick}
           />
         </View>
 
@@ -73,7 +107,7 @@ const BuyScreen = () => {
                 Lot
               </AppText>
               <AppText className="text-textMuted" textSize={12}>
-                100 Qty.
+                {lotQuantity * (instrument === null ? 0 : instrument?.lotSize)}
               </AppText>
             </View>
             <View className="px-2 py-2 border border-border flex-row items-center">
@@ -83,6 +117,11 @@ const BuyScreen = () => {
                 placeholderTextColor={"#A3A3B3"}
                 style={{ fontFamily: "interSemiBold" }}
                 keyboardType="number-pad"
+                onChangeText={(value) =>
+                  value.length === 0
+                    ? setLotQuantity(0)
+                    : setLotQuantity(Number(value))
+                }
               />
             </View>
           </View>
@@ -92,7 +131,7 @@ const BuyScreen = () => {
               textSize={14}
               style={{ fontFamily: "interSemiBold" }}
             >
-              Market
+              {transactionType === "MARKET" ? "Market" : "Limit"}
             </AppText>
             <View className="px-2 py-2 border border-border flex-row items-center">
               <TextInput
@@ -101,15 +140,33 @@ const BuyScreen = () => {
                 placeholderTextColor={"#A3A3B3"}
                 style={{ fontFamily: "interSemiBold" }}
                 keyboardType="number-pad"
+                editable={transactionType !== "MARKET"}
+                onChangeText={(value) =>
+                  value.length === 0 ? setLimit(0) : setLimit(Number(value))
+                }
               />
               <View className="px-2">
-                <MaterialIcons name="swap-horiz" size={26} color="#538BE3" />
+                <MaterialIcons
+                  name="swap-horiz"
+                  size={26}
+                  color="#538BE3"
+                  onPress={() =>
+                    setTransactionType(
+                      transactionType === "MARKET" ? "LIMIT" : "MARKET"
+                    )
+                  }
+                />
               </View>
             </View>
           </View>
           <View className="flex-row items-end justify-end gap-2 px-4">
-            <View className="flex-row gap-2 items-center">
-              <View className="h-4 w-4 rounded-full border border-border" />
+            <TouchableOpacity
+              className="flex-row gap-2 items-center"
+              onPress={() => setTradeType("MIS")}
+            >
+              <View
+                className={`h-4 w-4 rounded-full ${tradeType === "MIS" && "bg-brand"} border border-border`}
+              />
               <AppText
                 className="text-textPrimary"
                 textSize={16}
@@ -117,9 +174,14 @@ const BuyScreen = () => {
               >
                 Intraday
               </AppText>
-            </View>
-            <View className="flex-row gap-2 items-center ">
-              <View className="h-4 w-4 rounded-full border border-brand bg-brand" />
+            </TouchableOpacity>
+            <Pressable
+              className="flex-row gap-2 items-center"
+              onPress={() => setTradeType("CNC")}
+            >
+              <View
+                className={`h-4 w-4 rounded-full ${tradeType === "CNC" && "bg-brand"} border border-border`}
+              />
               <AppText
                 className="text-textPrimary"
                 textSize={16}
@@ -127,7 +189,7 @@ const BuyScreen = () => {
               >
                 Overnight
               </AppText>
-            </View>
+            </Pressable>
           </View>
         </View>
         <View className="bg-background flex-col gap-2 px-4 py-4 rounded-lg">
@@ -161,6 +223,11 @@ const BuyScreen = () => {
                   placeholderTextColor={"#A3A3B3"}
                   style={{ fontFamily: "interSemiBold" }}
                   keyboardType="number-pad"
+                  onChangeText={(value) =>
+                    value.length === 0
+                      ? setTriggerPrice(0)
+                      : setTriggerPrice(Number(value))
+                  }
                 />
               </View>
             </View>
@@ -174,19 +241,32 @@ const BuyScreen = () => {
           <View className="flex-row items-center gap-6">
             <View className="flex-row gap-2">
               <AppText className="text-textSecondary">Margin</AppText>
-              <AppText className="text-brand">1,29,000</AppText>
+              <AppText className="text-brand">{FormatNumber(margin)}</AppText>
               <AppText className="text-textSecondary">+</AppText>
-              <AppText className="text-brand">43.59</AppText>
+              <AppText className="text-brand">
+                {FormatNumber(brokerage)}
+              </AppText>
             </View>
             <View className="flex-row gap-1">
               <AppText className="text-textSecondary">Avail.</AppText>
-              <AppText className="text-brand">83.90</AppText>
+              <AppText className="text-brand">
+                {FormatNumber(profile === null ? 0 : profile?.availableFunds)}
+              </AppText>
             </View>
           </View>
           <Feather name="refresh-cw" size={14} color={"#538BE3"} />
         </View>
         <View className="px-10 bg-background">
-          <TouchableOpacity className="bg-buttonPrimary items-center py-6 rounded-full">
+          <TouchableOpacity
+            className="bg-buttonPrimary items-center py-6 rounded-full disabled:bg-backgroundSecondary"
+            disabled={
+              totalAmount > (profile === null ? 0 : profile?.availableFunds) ||
+              lotQuantity === 0 ||
+              (stoploss && triggerPrice === 0) ||
+              (transactionType === "LIMIT" && limit === 0)
+            }
+            onPress={handleBuyOrder}
+          >
             <AppText
               className="text-white"
               textSize={20}

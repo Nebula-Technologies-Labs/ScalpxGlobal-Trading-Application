@@ -1,18 +1,20 @@
 export type orderType = "BUY" | "SELL";
 export type orderStatus = "COMPLETED" | "CANCELLED" | "REJECTED" | "PENDING";
 export type tradeType = "CNC" | "MIS";
-export type orderoption = "MARKET" | "LIMIT" | "STOPLOSS";
-export type stoplossOption = "ST-M" | "ST-L";
+export type transactionType = "MARKET" | "LIMIT" | "ST-L";
 
 export interface OrderResponse {
   orderType: orderType;
   orderStatus: orderStatus;
   tradeType: tradeType;
-  stoplossOption: stoplossOption;
-  orderOption: orderoption;
+  orderOption: transactionType;
   symbol: string;
   quantity: number;
-  exchangeType: string;
-  average: number;
+  exchangeSegment: string;
   createdAt: string;
+  userId: string;
+  price: number;
+  token: string;
+  limit: number;
+  triggerPrice: number;
 }
