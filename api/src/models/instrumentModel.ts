@@ -1,11 +1,11 @@
-import { InstrumentDTO } from "types/instrument";
+import { InstrumentDTO } from "types/Instrument";
 import { Model } from "mongoose";
 const mongoose = require("mongoose");
 
 const InstrumentSchema = new mongoose.Schema(
   {
     token: { type: String, required: true },
-    symbol: { type: String, required: true},
+    symbol: { type: String, required: true },
     name: { type: String },
     expiry: { type: String },
     exchangeSegment: { type: String, required: true },
@@ -15,7 +15,8 @@ const InstrumentSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const InstrumentModel = mongoose.model("instrument", InstrumentSchema) as Model<
-  InstrumentDTO | Document
->;
+const InstrumentModel = mongoose.model(
+  "instrument",
+  InstrumentSchema
+) as Model<InstrumentDTO>;
 export default InstrumentModel;

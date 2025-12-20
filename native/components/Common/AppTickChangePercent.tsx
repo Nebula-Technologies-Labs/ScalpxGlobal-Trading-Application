@@ -3,21 +3,20 @@ import AppText from "./AppText";
 import { InstrumentResponse } from "@/types/InstrumentTypes";
 import { AppHeaderInstruments } from "@/data/AppHeaderData";
 import { FormatNumber } from "@/utils/Formatter";
+import useSocketTick from "@/hooks/useSocketTicks";
 
 interface AppTickChangePercentProps {
   className?: string;
   textSize?: number;
   item: InstrumentResponse | AppHeaderInstruments | null;
-  tick: any;
 }
 
 export default function AppTickChangePercent({
   className,
   textSize,
-  tick,
   item,
 }: AppTickChangePercentProps) {
-  
+  const { tick } = useSocketTick();
   const data = useMemo(
     () => (item === null ? {} : tick[item?.token]),
     [item, tick]

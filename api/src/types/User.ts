@@ -1,6 +1,9 @@
+import { Schema } from "mongoose";
+
 type userRole = "USER" | "ADMIN";
 
 export interface UserDTO {
+  _id: Schema.Types.ObjectId;
   userId: string;
   userName: string;
   password: string;
