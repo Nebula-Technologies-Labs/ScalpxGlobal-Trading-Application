@@ -2,7 +2,6 @@ import axiosInstance from "@/config/axios.config";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { UserResponse } from "@/types/UserTypes";
-import { RootState } from "../store";
 
 interface authSliceInitialState {
   token: string | null;
