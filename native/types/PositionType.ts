@@ -1,17 +1,8 @@
-import {  Types } from "mongoose";
-import { InstrumentDTO } from "./Instrument";
-import { OrderDTO, orderType, tradeType } from "./Order";
-import { UserDTO } from "./User";
+import { orderType, tradeType } from "./OrderTypes";
 
 type positionStatus = "ACTIVE" | "EXITED";
 
-export interface PositionParams {
-  user: UserDTO;
-  instrument: InstrumentDTO;
-  order: OrderDTO;
-}
-
-export interface PositionDTO {
+export interface PositionResponse {
   userId: string;
   token: string;
   quantity: number;

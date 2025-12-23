@@ -1,18 +1,27 @@
 import AppText from "@/components/Common/AppText";
 import WatchlistItemContainer from "@/components/Container/WatchlistItemContainer";
 import InstrumentModal from "@/components/Models/InstrumentModal";
+import { useAppDispatch, useAppSelector } from "@/redux/hook";
+import { loadwatchlisted } from "@/redux/slices/WatchlistSlice";
 import { InstrumentResponse } from "@/types/InstrumentTypes";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FlatList, Modal, Pressable, View } from "react-native";
 
 const HomeScreen = () => {
   const [activeWatchlist, setActiveWatchlist] = useState(1);
+  const dispatch = useAppDispatch();
   const [selectedInstrument, setSelectedInstrument] =
     useState<InstrumentResponse | null>(null);
   const watchlistData = [1, 2, 3, 4, 5, 6, 7];
-  const InstrumentData: InstrumentResponse[] = [];
+  const { watchlists } = useAppSelector((state) => state.watchlist);
+
+  useEffect(() => {
+    dispatch(loadwatchlisted());
+  }, [dispatch]);
+
+  
   return (
     <View className="flex-1">
       <View>
@@ -63,7 +72,7 @@ const HomeScreen = () => {
         {/*  */}
         <View>
           <FlatList
-            data={InstrumentData}
+            data={watchlists}
             keyExtractor={(item) => item.token}
             renderItem={({ item }) => {
               return (

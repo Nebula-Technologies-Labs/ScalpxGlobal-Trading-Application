@@ -5,10 +5,6 @@ import { tickMap } from "./ticks.service";
 
 export let positionMap = new Map<string, PositionDTO>();
 
-setInterval(() => {
-  console.log(positionMap);
-}, 5000);
-
 export const positionService = async ({
   user,
   instrument,
@@ -37,6 +33,7 @@ export const positionService = async ({
       average: order.price,
       exitedAverage: null,
       status: "ACTIVE",
+      tradeType: order.tradeType,
     });
     await userModel.findByIdAndUpdate(user._id, {
       $inc: { availableFunds: -totalAmount },
@@ -68,8 +65,9 @@ export const positionService = async ({
           createdAt: existedPosition.createdAt,
           exitedAt: existedPosition.exitedAt,
           average: existedPosition.average,
-          exitedAverage: existedPosition.exitedAt,
+          exitedAverage: existedPosition.exitedAverage,
           status: existedPosition.status,
+          tradeType: existedPosition.tradeType,
         });
         await userModel.findByIdAndUpdate(user._id, {
           $inc: {
@@ -94,8 +92,9 @@ export const positionService = async ({
           createdAt: existedPosition.createdAt,
           exitedAt: existedPosition.exitedAt,
           average: existedPosition.average,
-          exitedAverage: existedPosition.exitedAt,
+          exitedAverage: existedPosition.exitedAverage,
           status: existedPosition.status,
+          tradeType: existedPosition.tradeType,
         });
         await userModel.findByIdAndUpdate(user._id, {
           $inc: {
@@ -118,6 +117,7 @@ export const positionService = async ({
           average: order.price,
           exitedAverage: null,
           status: "ACTIVE",
+          tradeType: order.tradeType,
         });
         await userModel.findByIdAndUpdate(user._id, {
           $inc: {

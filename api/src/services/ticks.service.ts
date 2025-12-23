@@ -57,7 +57,7 @@ const TickEngine = async () => {
         }
       });
 
-      socket.on("watchlist/add", ({ token, exchangeType }) => {
+      socket.on("watchlist", ({ token, exchangeType }) => {
         if (!tokenMap.has(token)) {
           try {
             const payload = {
