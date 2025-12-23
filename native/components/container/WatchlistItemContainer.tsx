@@ -2,6 +2,9 @@ import { TouchableOpacity, View } from "react-native";
 import AppText from "../Common/AppText";
 import { FC } from "react";
 import { InstrumentResponse } from "@/types/InstrumentTypes";
+import AppTickChange from "../Common/AppTickChange";
+import AppTickChangePercent from "../Common/AppTickChangePercent";
+import AppTickPrice from "../Common/AppTickPrice";
 
 interface WatchlistItemContainerProps {
   item: InstrumentResponse;
@@ -21,21 +24,15 @@ const WatchlistItemContainer: FC<WatchlistItemContainerProps> = ({
         <AppText className="text-textSecondary" textSize={14}>
           {item.symbol}
         </AppText>
-        <AppText className="text-sucess" textSize={15}>
-          3,1234
-        </AppText>
+        <AppTickPrice item={item} textSize={14} />
       </View>
       <View className="flex-row item-center justify-between">
         <AppText className="text-textMuted" textSize={13}>
           {item.exchangeSegment}
         </AppText>
         <View className="flex-row gap-2 items-center">
-          <AppText className="text-textSecondary" textSize={13}>
-            0.00
-          </AppText>
-          <AppText className="text-textSecondary" textSize={13}>
-            (0.00)
-          </AppText>
+          <AppTickChange item={item} className="text-textMuted" textSize={13} />
+          <AppTickChangePercent item={item} className="text-textMuted" textSize={13} />
         </View>
       </View>
     </TouchableOpacity>
