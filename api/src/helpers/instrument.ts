@@ -3,15 +3,28 @@ import { InstrumentDTO, RawInstruments } from "types/instrument";
 import InstrumentModel from "@models/instrumentModel";
 import axios from "axios";
 
+const ALLOWED_SEGMENTS = new Set(["OPTSTK", "OPTIDX", "OPTFUT" , "FUTCOM" , "FUTSTK" , "FUTIDX"]);
+
 export const storeInstrument = async () => {
   try {
     console.log("fetching Instruments ...");
+
     const instruments = await fetchInstruments();
-    console.log(`${instruments.length} instruments fetched`);
+
+    const filtered = instruments.filter((item) =>
+      ALLOWED_SEGMENTS.has(item.instrumentType)
+    );
+
+    console.log(`${filtered.length} instruments after filtering`);
+
+    await redis.del(`trick:instruments`);
+    console.log("Redis Instruments deleted...");
     await InstrumentModel.deleteMany({});
-    console.log("Inserted Instruments deleted ...");
-    for (const item of instruments) {
-      await redis.hSet("trick:instruments", item.token, JSON.stringify(item));
+    console.log("DB Instruments deleted ...");
+
+    for (const item of filtered) {
+      await redis.hSet(`trick:instruments`, item.token, JSON.stringify(item));
+
       await InstrumentModel.create({
         token: item.token,
         exchangeSegment: item.exchangeSegment,
@@ -22,10 +35,11 @@ export const storeInstrument = async () => {
         expiry: item.expiry,
       });
     }
-    console.log("fetched and store instruments successfully...")
+
+    console.log("Fetched and stored instruments successfully...");
   } catch (error) {
-    console.log(error);
-    console.log("Error Storing Redis Instruments... ");
+    console.error(error);
+    console.log("Error storing Redis instruments...");
   }
 };
 

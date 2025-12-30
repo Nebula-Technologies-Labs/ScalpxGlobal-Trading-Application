@@ -1,26 +1,26 @@
 {
   "expo": {
-    "name": "Trick",
-    "slug": "Trick",
-    "version": "1.0.1",
-    "description": "Trick is a free trading learning platform which provide all type of trades only for learning trends and curves of market.",
+    "name": "ScalpxGlobal",
+    "slug": "ScalpxGlobal",
+    "version": "2.0.0",
+    "description": "ScalpxGlobal is a free trading learning platform which provide all type of trades only for learning trends and curves of market.",
     "orientation": "portrait",
     "scheme": "trick",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "buildNumber": "1"
+      "buildNumber": "2"
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundImage": "./assets//images/logo.png",
-        "foregroundImage": "./assets/images/logo.png"
+        "backgroundImage": "./assets//images/icon.png",
+        "foregroundImage": "./assets/images/icon.png"
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
       "package": "com.nebulatechnologieslabs.trick",
-      "versionCode": 1
+      "versionCode": 2
     },
     "web": {
       "output": "static",
@@ -31,10 +31,10 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/logo.png",
+          "image": "./assets/images/icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#081427"
+          "backgroundColor": "#FFFFFF"
         }
       ]
     ],
