@@ -8,18 +8,18 @@ const userSchema = new mongoose.Schema(
     userId: { type: String, required: true, index: true, unique: true },
     password: { type: String, required: true },
     adhaarNumber: { type: String },
-    availableFunds: { type: Number, default: 10000 },
+    availableFunds: { type: Number, required: true },
+    brokerId : {type : String},
     email: { type: String },
-    optMargin: { type: Number, default: 5 },
-    futMargin: { type: Number, default: 10000 },
-    optBrokerage: { type: Number, default: 20 },
-    futBrokerage: { type: Number, default: 500 },
+    optMargin: { type: Number, required: true },
+    futMargin: { type: Number, required: true },
     pancardNumber: { type: String },
     phoneNumber: { type: String },
-    role: { type: String, default: "USER", enum: ["USER", "BROKER", "ADMIN"] },
+    role: { type: String, default: "USER"},
     userName: { type: String },
+    isDemoId : {type : Boolean , default : true}
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 userSchema.pre("save", async function (next) {
