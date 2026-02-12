@@ -1,6 +1,6 @@
 import { Schema } from "mongoose";
 
-type userRole = "USER";
+export type userRole = "USER" | "ADMIN" | "BROKER";
 
 export interface UserDTO {
   _id: Schema.Types.ObjectId;
@@ -17,4 +17,5 @@ export interface UserDTO {
   optBrokerage: number;
   futBrokerage: number;
   availableFunds: number;
+  comparePassword: (password: string) => boolean;
 }
