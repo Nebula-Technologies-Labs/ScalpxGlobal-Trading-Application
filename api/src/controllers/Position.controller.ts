@@ -1,4 +1,5 @@
 import { redis } from "@config/redis.config";
+import adminModel from "@models/adminModel";
 import PositionModel from "@models/positionModel";
 
 export const fetchPositions = async (req, res) => {

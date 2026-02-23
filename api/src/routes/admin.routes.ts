@@ -10,6 +10,7 @@ import {
   blockClientAccount,
   unblockClientAccount,
   addFundsToClientAccount,
+  fetchClientPositionsByAdmin
 } from "@controllers/admin.controller";
 import authenticate from "@middleware/authenticate";
 
@@ -30,5 +31,7 @@ router.put(
   authenticate,
   addFundsToClientAccount,
 );
+
+router.get("/:clientId/positions" , authenticate , fetchClientPositionsByAdmin)
 
 export default router;
