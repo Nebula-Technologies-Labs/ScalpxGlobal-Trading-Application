@@ -1,7 +1,7 @@
 import PositionModel from "@models/positionModel";
 import userModel from "@models/userModel";
 import { PositionDTO, PositionParams } from "types/position";
-import { tickMap } from "./ticks.service";
+import { tickMap } from "@config/smartAPI";
 import { redis } from "@config/redis.config";
 import { futures, InstrumentDTO, options } from "../types/instrument";
 
