@@ -71,6 +71,7 @@ const SmartAPITickEngine = () => {
     ws.on("tick", (data) => {
       if (data === "pong") return;
       const token = String(data.token).replace(/"/g, "").trim();
+      console.log("Tick...");
       tickMap.set(token, { ...data, token });
     });
 

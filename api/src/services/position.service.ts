@@ -62,8 +62,7 @@ export const positionService = async ({
   let orderBrokerage = 0;
 
   if (options.has(instrument.instrumentType)) {
-    orderMargin =
-      ((ltp / 100) * order.quantity) / user.optMargin;
+    orderMargin = ((ltp / 100) * order.quantity) / user.optMargin;
 
     orderBrokerage = order.quantity * user.optBrokerage;
   }
@@ -73,7 +72,7 @@ export const positionService = async ({
     orderBrokerage = order.quantity * user.futBrokerage;
   }
 
-  const totalAmount = orderMargin + orderBrokerage;
+  let totalAmount = orderMargin + orderBrokerage;
   const userId = String(user._id);
   const token = instrument.token;
 
@@ -160,43 +159,61 @@ export const positionService = async ({
   }
 
   // REVERSE POSITION
-  // if (netQty < 0) {
-  //   const leftQty = Math.abs(netQty);
+  if (netQty < 0) {
+    const leftQty = Math.abs(netQty);
 
-  //   existedPosition.status = "EXITED";
-  //   existedPosition.exitedAt = new Date();
-  //   existedPosition.exitedAverage = order.price;
+    existedPosition.status = "EXITED";
+    existedPosition.exitedAt = new Date();
+    existedPosition.exitedAverage = order.price;
 
-  //   await PositionModel.create(existedPosition);
-  //   await removePosition(userId, token);
+    await PositionModel.create(existedPosition);
+    await removePosition(userId, token);
 
-  //   const newPosition: PositionDTO = {
-  //     userId,
-  //     token,
-  //     instrument,
-  //     quantity: leftQty,
-  //     symbol: order.symbol,
-  //     type: order.orderType,
-  //     createdAt: new Date(),
-  //     exitedAt: null,
-  //     totalAmount: order.price * leftQty,
-  //     average: order.price,
-  //     exitedAverage: null,
-  //     status: "ACTIVE",
-  //     tradeType: order.tradeType,
-  //     exchangeSegment: order.exchangeSegment,
-  //   };
+    orderMargin = 0;
+    orderBrokerage = 0;
 
-  //   await savePosition(userId, token, newPosition);
+    if (options.has(instrument.instrumentType)) {
+      orderMargin = ((ltp / 100) * leftQty) / user.optMargin;
 
-  //   await userModel.findByIdAndUpdate(userId, {
-  //     $inc: {
-  //       availableFunds: -(order.price * leftQty - brokerage),
-  //     },
-  //   });
+      orderBrokerage = leftQty * user.optBrokerage;
+    }
 
-  //   return;
-  // }
+    if (futures.has(instrument.instrumentType)) {
+      orderMargin = user.futMargin * leftQty;
+      orderBrokerage = leftQty * user.futBrokerage;
+    }
+
+    totalAmount = orderMargin + orderBrokerage;
+
+    const newPosition: PositionDTO = {
+      userId,
+      token,
+      instrument,
+      quantity: leftQty,
+      symbol: order.symbol,
+      type: order.orderType,
+      createdAt: new Date(),
+      exitedAt: null,
+      orderBrokerage: orderBrokerage,
+      orderMargin: orderMargin,
+      totalOrderAmount: totalAmount,
+      average: order.price,
+      exitedAverage: null,
+      status: "ACTIVE",
+      tradeType: order.tradeType,
+      exchangeSegment: order.exchangeSegment,
+    };
+
+    await savePosition(userId, token, newPosition);
+
+    await userModel.findByIdAndUpdate(userId, {
+      $inc: {
+        availableFunds: -totalAmount,
+      },
+    });
+
+    return;
+  }
 
   // PARTIAL EXIT
   // existedPosition.quantity = netQty;
